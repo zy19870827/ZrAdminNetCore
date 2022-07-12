@@ -16,6 +16,7 @@ using ZR.Admin.WebApi.Extensions;
 using ZR.Admin.WebApi.Filters;
 using ZR.Common;
 using ZR.Model.System;
+using ZR.Model.System.Dto;
 using ZR.Service.System.IService;
 
 namespace ZR.Admin.WebApi.Controllers
@@ -89,43 +90,54 @@ namespace ZR.Admin.WebApi.Controllers
         /// 存储文件
         /// </summary>
         /// <param name="formFile"></param>
-        /// <param name="fileDir">存储目录</param>
-        /// <param name="fileName">自定义文件名</param>
+        /// <param name="uploadDto">自定义文件名</param>
         /// <param name="storeType">上传类型1、保存到本地 2、保存到阿里云</param>
         /// <returns></returns>
         [HttpPost()]
         [Verify]
         [ActionPermissionFilter(Permission = "common")]
-        public async Task<IActionResult> UploadFile([FromForm(Name = "file")] IFormFile formFile, string fileName = "", string fileDir = "", StoreType storeType = StoreType.LOCAL)
+        public async Task<IActionResult> UploadFile([FromForm(Name = "file")] IFormFile formFile, [FromForm] UploadDto uploadDto, StoreType storeType = StoreType.LOCAL)
         {
             if (formFile == null) throw new CustomException(ResultCode.PARAM_ERROR, "上传文件不能为空");
             SysFile file = new();
             string fileExt = Path.GetExtension(formFile.FileName);//文件后缀
             double fileSize = Math.Round(formFile.Length / 1024.0, 2);//文件大小KB
-            string[] NotAllowedFileExtensions = new string[] { ".bat", ".exe", ".jar", ".js" };
-            int MaxContentLength = 15;
-            if (NotAllowedFileExtensions.Contains(fileExt))
+            
+            if (OptionsSetting.Upload.NotAllowedExt.Contains(fileExt))
             {
                 return ToResponse(ResultCode.CUSTOM_ERROR, "上传失败，未经允许上传类型");
+            }
+            if (uploadDto.FileNameType == 1)
+            {
+                uploadDto.FileName = Path.GetFileNameWithoutExtension(formFile.FileName);
+            }
+            else if (uploadDto.FileNameType == 3)
+            {
+                uploadDto.FileName = SysFileService.HashFileName();
             }
             switch (storeType)
             {
                 case StoreType.LOCAL:
                     string savePath = Path.Combine(WebHostEnvironment.WebRootPath);
-                    if (fileDir.IsEmpty())
+                    if (uploadDto.FileDir.IsEmpty())
                     {
-                        fileDir = AppSettings.App(new string[] { "Upload", "localSavePath" });
+                        uploadDto.FileDir = OptionsSetting.Upload.LocalSavePath;
                     }
-                    file = await SysFileService.SaveFileToLocal(savePath, fileName, fileDir, HttpContext.GetName(), formFile);
+                    file = await SysFileService.SaveFileToLocal(savePath, uploadDto.FileName, uploadDto.FileDir, HttpContext.GetName(), formFile);
                     break;
                 case StoreType.REMOTE:
                     break;
                 case StoreType.ALIYUN:
-                    if ((fileSize / 1024) > MaxContentLength)
+                    int AlimaxContentLength = OptionsSetting.ALIYUN_OSS.MaxSize;
+                    if (OptionsSetting.ALIYUN_OSS.REGIONID.IsEmpty())
                     {
-                        return ToResponse(ResultCode.CUSTOM_ERROR, "上传文件过大，不能超过 " + MaxContentLength + " MB");
+                        return ToResponse(ResultCode.CUSTOM_ERROR, "配置文件缺失");
                     }
-                    file = new(formFile.FileName, fileName, fileExt, fileSize + "kb", fileDir, HttpContext.GetName())
+                    if ((fileSize / 1024) > AlimaxContentLength)
+                    {
+                        return ToResponse(ResultCode.CUSTOM_ERROR, "上传文件过大，不能超过 " + AlimaxContentLength + " MB");
+                    }
+                    file = new(formFile.FileName, uploadDto.FileName, fileExt, fileSize + "kb", uploadDto.FileDir, HttpContext.GetName())
                     {
                         StoreType = (int)StoreType.ALIYUN,
                         FileType = formFile.ContentType
