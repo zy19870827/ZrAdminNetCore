@@ -196,7 +196,7 @@ namespace ZR.Admin.WebApi.Controllers.System
                 os = clientInfo.OS.ToString(),
                 ipaddr = ipAddr,
                 userName = context.GetName(),
-                loginLocation = ip_info.Province + "-" + ip_info.City
+                loginLocation = ip_info?.Province + "-" + ip_info?.City
             };
 
             return sysLogininfor;
