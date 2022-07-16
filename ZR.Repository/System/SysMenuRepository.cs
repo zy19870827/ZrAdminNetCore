@@ -20,13 +20,21 @@ namespace ZR.Repository.System
         /// <returns></returns>
         public List<SysMenu> SelectTreeMenuList(MenuQueryDto menu)
         {
-            return Context.Queryable<SysMenu>()
+            int parentId = 0;
+            if (menu.ParentId != null)
+            {
+                parentId = (int)menu.ParentId;
+            }
+            var list = Context.Queryable<SysMenu>()
                 .WhereIF(!string.IsNullOrEmpty(menu.MenuName), it => it.MenuName.Contains(menu.MenuName))
                 .WhereIF(!string.IsNullOrEmpty(menu.Visible), it => it.visible == menu.Visible)
                 .WhereIF(!string.IsNullOrEmpty(menu.Status), it => it.status == menu.Status)
                 .WhereIF(!string.IsNullOrEmpty(menu.MenuTypeIds), it => menu.MenuTypeIdArr.Contains(it.menuType))
+                .WhereIF(menu.ParentId != null, it => it.parentId == menu.ParentId)
                 .OrderBy(it => new { it.parentId, it.orderNum })
-                .ToTree(it => it.children, it => it.parentId, 0);
+                .ToTree(it => it.children, it => it.parentId, parentId);
+
+            return list;
         }
 
         /// <summary>
