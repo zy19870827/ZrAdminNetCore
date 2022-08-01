@@ -2,17 +2,17 @@ using Infrastructure.Attribute;
 using Infrastructure.Enums;
 using Infrastructure.Model;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.IO;
 using ZR.Admin.WebApi.Extensions;
 using ZR.Admin.WebApi.Filters;
 using ZR.Common;
 using ZR.Model;
 using ZR.Model.System;
 using ZR.Service.System.IService;
-
+using ff = System.IO;
 namespace ZR.Admin.WebApi.Controllers.System
 {
     /// <summary>
@@ -26,17 +26,18 @@ namespace ZR.Admin.WebApi.Controllers.System
         private readonly ISysRoleService RoleService;
         private readonly ISysPostService PostService;
         private readonly ISysUserPostService UserPostService;
-
+        private readonly IWebHostEnvironment WebHostEnvironment;
         public SysUserController(
             ISysUserService userService,
             ISysRoleService roleService,
             ISysPostService postService,
-            ISysUserPostService userPostService)
+            ISysUserPostService userPostService, IWebHostEnvironment webHostEnvironment)
         {
             UserService = userService;
             RoleService = roleService;
             PostService = postService;
             UserPostService = userPostService;
+            WebHostEnvironment = webHostEnvironment;
         }
 
         /// <summary>
@@ -175,14 +176,15 @@ namespace ZR.Admin.WebApi.Controllers.System
         /// <param name="formFile">使用IFromFile必须使用name属性否则获取不到文件</param>
         /// <returns></returns>
         [HttpPost("importData")]
-        [Log(Title = "用户导入", BusinessType = BusinessType.IMPORT, IsSaveRequestData = false, IsSaveResponseData = false)]
+        [Log(Title = "用户导入", BusinessType = BusinessType.IMPORT, IsSaveRequestData = false, IsSaveResponseData = true)]
         [ActionPermissionFilter(Permission = "system:user:import")]
         public IActionResult ImportData([FromForm(Name = "file")] IFormFile formFile)
         {
-            IEnumerable<SysUser> users = ExcelHelper<SysUser>.ImportData(formFile.OpenReadStream());
+            List<SysUser> users = (List<SysUser>)ExcelHelper<SysUser>.ImportData(formFile.OpenReadStream());
 
-            //TODO 业务逻辑,自行插入数据到db
-            return SUCCESS(users);
+            string msg = UserService.ImportUsers(users);
+            
+            return ToResponse(Infrastructure.ResultCode.SUCCESS, msg);
         }
 
         /// <summary>
@@ -194,11 +196,11 @@ namespace ZR.Admin.WebApi.Controllers.System
         [AllowAnonymous]
         public IActionResult ImportTemplateExcel()
         {
-            List<SysUser> user = new List<SysUser>();
-            MemoryStream stream = new MemoryStream();
+            string fileDir = ff.Path.Combine(WebHostEnvironment.WebRootPath, "importTemplate", "user.xlsx");
 
-            string sFileName = DownloadImportTemplate(user, stream, "用户列表");
-            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{sFileName}");
+            var stream = ff.File.OpenRead(fileDir);  //创建文件流
+
+            return File(stream, "text/plain", "user.xlsx");
         }
 
         /// <summary>

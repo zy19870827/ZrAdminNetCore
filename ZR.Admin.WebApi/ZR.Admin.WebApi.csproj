@@ -13,6 +13,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="wwwroot\input\**" />
+	  <Content Remove="wwwroot\input\**" />
+	  <EmbeddedResource Remove="wwwroot\input\**" />
+	  <None Remove="wwwroot\input\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="AspNetCoreRateLimit" Version="4.0.2" />
 		<PackageReference Include="EPPlus" Version="6.0.4" />
 		<PackageReference Include="Hei.Captcha" Version="0.3.0" />

@@ -32,7 +32,7 @@ namespace ZR.Common
             Dictionary<string, int> dictHeader = new();
             for (int i = colStart; i < colEnd; i++)
             {
-                var name = worksheet.Cells[rowStart, i].Value.ToString();
+                var name = worksheet.Cells[rowStart, i].Value?.ToString();
                 dictHeader[name] = i;
 
                 PropertyInfo propertyInfo = MapPropertyInfo(name);

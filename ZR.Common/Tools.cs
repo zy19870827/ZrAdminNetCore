@@ -81,6 +81,20 @@ namespace ZR.Common
             }
         }
 
+        public static bool CheckUserName(string str)
+        {
+            try
+            {
+                string rg = @"^[a-z][a-z0-9-_]*$";
+                return Regex.IsMatch(str, rg);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+        
         /// <summary>
         /// 计算密码强度
         /// </summary>
