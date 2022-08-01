@@ -96,7 +96,10 @@ namespace ZR.Admin.WebApi.Controllers.System
             {
                 return ToResponse(ApiResult.Error($"新增用户 '{user.UserName}'失败，登录账号已存在"));
             }
-
+            if (!Tools.CheckUserName(user.UserName))
+            {
+                return ToResponse(ApiResult.Error($"用户名请使用字母开头可包含大小写字母数字_-"));
+            }
             user.Create_by = HttpContext.GetName();
             user.Password = NETCore.Encrypt.EncryptProvider.Md5(user.Password);
 
@@ -183,7 +186,7 @@ namespace ZR.Admin.WebApi.Controllers.System
             List<SysUser> users = (List<SysUser>)ExcelHelper<SysUser>.ImportData(formFile.OpenReadStream());
 
             string msg = UserService.ImportUsers(users);
-            
+
             return ToResponse(Infrastructure.ResultCode.SUCCESS, msg);
         }
 
