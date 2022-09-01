@@ -84,10 +84,10 @@ namespace ZR.Service
         /// <returns></returns>
         public List<SysMenu> GetMenusByMenuId(int menuId)
         {
-            var list = MenuRepository.GetList(f => f.parentId == menuId).OrderBy(f => f.orderNum).ToList();
+            var list = MenuRepository.GetList(f => f.ParentId == menuId).OrderBy(f => f.OrderNum).ToList();
             Context.ThenMapper(list, item =>
             {
-                item.SubNum = Context.Queryable<SysMenu>().SetContext(x => x.parentId, () => item.MenuId, item).Count;
+                item.SubNum = Context.Queryable<SysMenu>().SetContext(x => x.ParentId, () => item.MenuId, item).Count;
             });
             return list;
         }
@@ -109,7 +109,7 @@ namespace ZR.Service
         /// <returns></returns>
         public int EditMenu(SysMenu menu)
         {
-            menu.icon = string.IsNullOrEmpty(menu.icon) ? "" : menu.icon;
+            menu.Icon = string.IsNullOrEmpty(menu.Icon) ? "" : menu.Icon;
             return MenuRepository.EditMenu(menu);
         }
 
@@ -200,9 +200,9 @@ namespace ZR.Service
         /// <returns></returns>
         public List<string> SelectMenuPermsByUserId(long userId)
         {
-            var menuList = SelectMenuPermsListByUserId(userId).Where(f => !string.IsNullOrEmpty(f.perms));
+            var menuList = SelectMenuPermsListByUserId(userId).Where(f => !string.IsNullOrEmpty(f.Perms));
 
-            return menuList.Select(x => x.perms).Distinct().ToList();
+            return menuList.Select(x => x.Perms).Distinct().ToList();
         }
 
         #region RoleMenu
@@ -250,7 +250,7 @@ namespace ZR.Service
         {
             //得到子节点列表
             List<SysMenu> childList = GetChildList(list, t);
-            t.children = childList;
+            t.Children = childList;
             foreach (var item in childList)
             {
                 if (GetChildList(list, item).Count() > 0)
@@ -268,7 +268,7 @@ namespace ZR.Service
         /// <returns></returns>
         private List<SysMenu> GetChildList(List<SysMenu> list, SysMenu sysMenu)
         {
-            return list.Where(p => p.parentId == sysMenu.MenuId).ToList();
+            return list.Where(p => p.ParentId == sysMenu.MenuId).ToList();
         }
 
         /// <summary>
@@ -284,16 +284,16 @@ namespace ZR.Service
             {
                 RouterVo router = new()
                 {
-                    Hidden = "1".Equals(menu.visible),
+                    Hidden = "1".Equals(menu.Visible),
                     Name = GetRouteName(menu),
                     Path = GetRoutePath(menu),
                     Component = GetComponent(menu),
-                    Meta = new Meta(menu.MenuName, menu.icon, "1".Equals(menu.isCache), menu.MenuNameKey, menu.path)
+                    Meta = new Meta(menu.MenuName, menu.Icon, "1".Equals(menu.IsCache), menu.MenuNameKey, menu.Path)
                 };
 
-                List<SysMenu> cMenus = menu.children;
+                List<SysMenu> cMenus = menu.Children;
                 //是目录并且有子菜单
-                if (cMenus != null && cMenus.Count > 0 && (UserConstants.TYPE_DIR.Equals(menu.menuType)))
+                if (cMenus != null && cMenus.Count > 0 && (UserConstants.TYPE_DIR.Equals(menu.MenuType)))
                 {
                     router.AlwaysShow = true;
                     router.Redirect = "noRedirect";
@@ -305,25 +305,25 @@ namespace ZR.Service
                     List<RouterVo> childrenList = new();
                     RouterVo children = new()
                     {
-                        Path = menu.path,
-                        Component = menu.component,
-                        Name = string.IsNullOrEmpty(menu.path) ? "" : menu.path.ToLower(),
-                        Meta = new Meta(menu.MenuName, menu.icon, "1".Equals(menu.isCache), menu.MenuNameKey, menu.path)
+                        Path = menu.Path,
+                        Component = menu.Component,
+                        Name = string.IsNullOrEmpty(menu.Path) ? "" : menu.Path.ToLower(),
+                        Meta = new Meta(menu.MenuName, menu.Icon, "1".Equals(menu.IsCache), menu.MenuNameKey, menu.Path)
                     };
                     childrenList.Add(children);
                     router.Children = childrenList;
                 }
-                else if (menu.parentId == 0 && IsInnerLink(menu))
+                else if (menu.ParentId == 0 && IsInnerLink(menu))
                 {
-                    router.Meta = new Meta(menu.MenuName, menu.icon);
+                    router.Meta = new Meta(menu.MenuName, menu.Icon);
                     router.Path = "/";
                     List<RouterVo> childrenList = new();
                     RouterVo children = new();
-                    string routerPath = InnerLinkReplaceEach(menu.path);
+                    string routerPath = InnerLinkReplaceEach(menu.Path);
                     children.Path = routerPath;
                     children.Component = UserConstants.INNER_LINK;
                     children.Name = routerPath.ToLower();
-                    children.Meta = new Meta(menu.MenuName, menu.icon, menu.path);
+                    children.Meta = new Meta(menu.MenuName, menu.Icon, menu.Path);
                     childrenList.Add(children);
                     router.Children = childrenList;
                 }
@@ -346,7 +346,7 @@ namespace ZR.Service
             foreach (var menu in menus)
             {
                 // 如果是顶级节点, 遍历该父节点的所有子节点
-                if (!tempList.Contains(menu.parentId))
+                if (!tempList.Contains(menu.ParentId))
                 {
                     RecursionFn(menus, menu);
                     returnList.Add(menu);
@@ -382,7 +382,7 @@ namespace ZR.Service
         /// <returns>路由名称</returns>
         public string GetRouteName(SysMenu menu)
         {
-            string routerName = menu.path.ToLower();
+            string routerName = menu.Path.ToLower();
             // 非外链并且是一级目录（类型为目录）
             if (IsMeunFrame(menu))
             {
@@ -398,17 +398,17 @@ namespace ZR.Service
         /// <returns>路由地址</returns>
         public string GetRoutePath(SysMenu menu)
         {
-            string routerPath = menu.path;
+            string routerPath = menu.Path;
             // 内链打开外网方式
-            if (menu.parentId != 0 && IsInnerLink(menu))
+            if (menu.ParentId != 0 && IsInnerLink(menu))
             {
                 routerPath = InnerLinkReplaceEach(routerPath);
             }
             // 非外链并且是一级目录（类型为目录）
-            if (0 == menu.parentId && UserConstants.TYPE_DIR.Equals(menu.menuType)
-                && UserConstants.NO_FRAME.Equals(menu.isFrame))
+            if (0 == menu.ParentId && UserConstants.TYPE_DIR.Equals(menu.MenuType)
+                && UserConstants.NO_FRAME.Equals(menu.IsFrame))
             {
-                routerPath = "/" + menu.path;
+                routerPath = "/" + menu.Path;
             }
             else if (IsMeunFrame(menu))// 非外链并且是一级目录（类型为菜单）
             {
@@ -425,15 +425,15 @@ namespace ZR.Service
         public string GetComponent(SysMenu menu)
         {
             string component = UserConstants.LAYOUT;
-            if (!string.IsNullOrEmpty(menu.component) && !IsMeunFrame(menu))
+            if (!string.IsNullOrEmpty(menu.Component) && !IsMeunFrame(menu))
             {
-                component = menu.component;
+                component = menu.Component;
             }
-            else if (menu.component.IsEmpty() && menu.parentId != 0 && IsInnerLink(menu))
+            else if (menu.Component.IsEmpty() && menu.ParentId != 0 && IsInnerLink(menu))
             {
                 component = UserConstants.INNER_LINK;
             }
-            else if (string.IsNullOrEmpty(menu.component) && IsParentView(menu))
+            else if (string.IsNullOrEmpty(menu.Component) && IsParentView(menu))
             {
                 component = UserConstants.PARENT_VIEW;
             }
@@ -447,8 +447,8 @@ namespace ZR.Service
         /// <returns></returns>
         public bool IsMeunFrame(SysMenu menu)
         {
-            return menu.parentId == 0 && UserConstants.TYPE_MENU.Equals(menu.menuType)
-                && menu.isFrame.Equals(UserConstants.NO_FRAME);
+            return menu.ParentId == 0 && UserConstants.TYPE_MENU.Equals(menu.MenuType)
+                && menu.IsFrame.Equals(UserConstants.NO_FRAME);
         }
 
         /// <summary>
@@ -458,7 +458,7 @@ namespace ZR.Service
         /// <returns>结果</returns>
         public bool IsInnerLink(SysMenu menu)
         {
-            return menu.isFrame.Equals(UserConstants.NO_FRAME) && Tools.IsUrl(menu.path);
+            return menu.IsFrame.Equals(UserConstants.NO_FRAME) && Tools.IsUrl(menu.Path);
         }
 
         ///
@@ -469,7 +469,7 @@ namespace ZR.Service
         /// <returns></returns>
         public bool IsParentView(SysMenu menu)
         {
-            return menu.parentId != 0 && UserConstants.TYPE_DIR.Equals(menu.menuType);
+            return menu.ParentId != 0 && UserConstants.TYPE_DIR.Equals(menu.MenuType);
         }
 
         /// <summary>
