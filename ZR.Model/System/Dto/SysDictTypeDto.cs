@@ -20,5 +20,9 @@ namespace ZR.Model.System.Dto
         /// 系统内置 Y是 N否
         /// </summary>
         public string Type { get; set; }
+        /// <summary>
+        /// 自定义sql
+        /// </summary>
+        public string CustomSql { get; set; }
     }
 }

@@ -13,7 +13,7 @@ namespace ZR.Model.System
         /// <summary>
         /// 字典主键
         /// </summary>
-        [SugarColumn(IsPrimaryKey = true, IsIdentity = true)]//主键并且自增 （string不能设置自增）
+        [SugarColumn(IsPrimaryKey = true, IsIdentity = true)]
         public long DictId { get; set; }
         /// <summary>
         /// 字典名称
@@ -32,5 +32,9 @@ namespace ZR.Model.System
         /// 系统内置 Y是 N否
         /// </summary>
         public string Type { get; set; }
+        /// <summary>
+        /// 自定义sql
+        /// </summary>
+        public string CustomSql { get; set; }
     }
 }
