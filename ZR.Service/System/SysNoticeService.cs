@@ -1,10 +1,7 @@
-using Infrastructure;
 using Infrastructure.Attribute;
 using SqlSugar;
 using System.Collections.Generic;
 using ZR.Model.Models;
-using ZR.Repository;
-using ZR.Repository.System;
 using ZR.Service.System.IService;
 
 namespace ZR.Service.System
@@ -18,12 +15,6 @@ namespace ZR.Service.System
     [AppService(ServiceType = typeof(ISysNoticeService), ServiceLifetime = LifeTime.Transient)]
     public class SysNoticeService : BaseService<SysNotice>, ISysNoticeService
     {
-        private readonly SysNoticeRepository _SysNoticerepository;
-        public SysNoticeService(SysNoticeRepository repository)
-        {
-            _SysNoticerepository = repository;
-        }
-
         #region 业务逻辑代码
 
         /// <summary>
@@ -37,7 +28,7 @@ namespace ZR.Service.System
 
             //搜索条件查询语法参考Sqlsugar
             predicate = predicate.And(m => m.Status == "0");
-            return _SysNoticerepository.GetList(predicate.ToExpression());
+            return GetList(predicate.ToExpression());
         }
 
         #endregion
