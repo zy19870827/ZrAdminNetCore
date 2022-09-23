@@ -65,6 +65,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Folder Include="Controllers\Business\" />
 		<Folder Include="DataProtection\" />
 	</ItemGroup>
 
