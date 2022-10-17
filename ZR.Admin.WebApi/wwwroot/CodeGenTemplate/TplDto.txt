@@ -7,6 +7,25 @@ using ${options.ModelsNamespace}.Models;
 namespace ${options.DtosNamespace}.Dto
 {
     /// <summary>
+    /// ${genTable.FunctionName}查询对象
+    /// </summary>
+    public class ${replaceDto.ModelTypeName}QueryDto : PagerInfo 
+    {
+$foreach(item in genTable.Columns)
+$if(item.IsQuery)
+$if(item.htmlType == "datetime")
+        public DateTime? Begin$item.CsharpField { get; set; }
+        public DateTime? End$item.CsharpField { get; set; }
+$elseif(item.htmlType == "selectMulti")
+        public ${item.CsharpType}[] $item.CsharpField { get; set; }
+$else
+        public $item.CsharpType$if(item.CsharpType != "string")?$end $item.CsharpField { get; set; }
+$end
+$end
+$end
+    }
+
+    /// <summary>
     /// ${genTable.FunctionName}输入对象
     /// </summary>
     public class ${replaceDto.ModelTypeName}Dto
@@ -17,21 +36,6 @@ $if(item.IsRequired)
         [Required(ErrorMessage = "${item.ColumnComment}不能为空")]
 $end
         public $item.CsharpType$item.RequiredStr $item.CsharpField { get; set; }
-$end
-$end
-    }
-
-    /// <summary>
-    /// ${genTable.FunctionName}查询对象
-    /// </summary>
-    public class ${replaceDto.ModelTypeName}QueryDto : PagerInfo 
-    {
-$foreach(item in genTable.Columns)
-$if(item.IsQuery && item.htmlType == "datetime")
-        public DateTime? Begin$item.CsharpField { get; set; }
-        public DateTime? End$item.CsharpField { get; set; }
-$elseif(item.IsQuery)
-        public $item.CsharpType$if(item.CsharpType != "string")?$end $item.CsharpField { get; set; }
 $end
 $end
     }

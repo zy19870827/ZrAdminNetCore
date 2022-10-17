@@ -1,5 +1,7 @@
 ﻿import request from '@/utils/request'
-
+$if(replaceDto.SelectMulti == 1)
+import QS from 'qs'
+$end
 /**
 * ${genTable.functionName}分页查询
 * @param {查询条件} data
@@ -9,6 +11,11 @@ export function list${genTable.BusinessName}(query) {
     url: '${genTable.ModuleName}/${genTable.BusinessName}/list',
     method: 'get',
     params: query,
+$if(replaceDto.SelectMulti == 1)
+    paramsSerializer: function (params) {
+      return QS.stringify(params, { indices: false })
+    }
+$end
   })
 }
 

@@ -6,6 +6,7 @@ using ${options.ModelsNamespace}.Dto;
 using ${options.ModelsNamespace}.Models;
 using ${options.IRepositoriesNamespace};
 using ${options.IServicsNamespace}.${options.SubNamespace}.I${options.SubNamespace}Service;
+using System.Linq;
 
 namespace ${options.ServicesNamespace}.${options.SubNamespace}
 {
@@ -33,7 +34,9 @@ namespace ${options.ServicesNamespace}.${options.SubNamespace}
             //搜索条件查询语法参考Sqlsugar
 $foreach(column in genTable.Columns)
 $if(column.IsQuery)
-$if(column.CsharpType == "string")
+$if(column.HtmlType == "selectMulti")
+            predicate = predicate.AndIF(parm.${column.CsharpField} != null, it => parm.${column.CsharpField}.Contains(it.${column.CsharpField}));
+$elseif(column.CsharpType == "string")
             predicate = predicate.AndIF(!string.IsNullOrEmpty(parm.${column.CsharpField}), ${codeTool.QueryExp(column.CsharpField, column.QueryType)};
 $elseif(column.CsharpType == "DateTime")
             predicate = predicate.AndIF(parm.Begin${column.CsharpField} == null, it => it.${column.CsharpField} >= DateTime.Now.AddDays(-1));

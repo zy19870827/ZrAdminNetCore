@@ -37,9 +37,9 @@ $if(column.HtmlType == "datetime")
           :shortcuts="dateOptions">
         </el-date-picker>
       </el-form-item>
-$elseif(column.HtmlType == "select" || column.HtmlType == "radio")
+$elseif(column.HtmlType == "select" || column.HtmlType == "radio" || column.HtmlType == "selectMulti")
       <el-form-item label="${labelName}" prop="${columnName}">
-        <el-select v-model="queryParams.${columnName}" placeholder="请选择${labelName}">
+        <el-select clearable $if(column.HtmlType == "selectMulti")multiple$end v-model="queryParams.${columnName}" placeholder="请选择${labelName}">
           <el-option v-for="item in $if(column.DictType != "") options.${column.DictType} $else options.${column.CsharpFieldFl}Options$end" :key="item.dictValue" :label="item.dictLabel" :value="item.dictValue"></el-option>
         </el-select>
       </el-form-item>
@@ -137,7 +137,7 @@ $elseif(column.HtmlType == "imageUpload")
           </el-image>
         </template>
       </el-table-column>
-$elseif(column.HtmlType == "checkbox" || column.HtmlType == "select" || column.HtmlType == "radio")
+$elseif(column.HtmlType == "checkbox" || column.HtmlType == "select" || column.HtmlType == "radio" || column.HtmlType == "selectMulti")
       <el-table-column prop="${columnName}" label="${labelName}" align="center"${column.sortStr} v-if="columns.showColumn('${columnName}')">
         <template #default="scope">
 $if(column.HtmlType == "checkbox")
@@ -240,7 +240,7 @@ $elseif(column.HtmlType == "editor")
               <editor v-model="form.${columnName}" :min-height="200" />
             </el-form-item>
           </el-col>
-$elseif(column.HtmlType == "select")
+$elseif(column.HtmlType == "select" || column.HtmlType == "selectMulti")
           <el-col :lg="${options.ColNum}">
             <el-form-item label="${labelName}" prop="${columnName}">
               <el-select v-model="form.${columnName}" placeholder="请选择${labelName}"${column.DisabledStr}>
@@ -328,8 +328,8 @@ $end
   },
   options: {
 $foreach(column in genTable.Columns)
-$if((column.HtmlType == "radio" || column.HtmlType == "select" || column.HtmlType == "checkbox"))
-    // $if(column.ColumnComment != "") ${column.ColumnComment} $else ${column.CsharpFieldFl}$end选项列表 格式 eg:{ dictLabel: '标签', dictValue: '0'}
+$if(column.HtmlType == "radio" || column.HtmlType == "select" || column.HtmlType == "checkbox" || column.HtmlType == "selectMulti")
+    //$if(column.ColumnComment != "") ${column.ColumnComment} $else ${column.CsharpFieldFl}$end选项列表 格式 eg:{ dictLabel: '标签', dictValue: '0'}
     $if(column.DictType != "")${column.DictType}$else${column.CsharpFieldFl}Options$end: [],
 $end
 $end
@@ -384,7 +384,7 @@ $end
 $set(index = 0)
 var dictParams = [
 $foreach(item in genTable.Columns)
-$if((item.HtmlType == "radio" || item.HtmlType == "select" || item.HtmlType == "checkbox") && item.DictType != "")
+$if((item.HtmlType == "radio" || item.HtmlType == "select" || item.HtmlType == "selectMulti" || item.HtmlType == "checkbox") && item.DictType != "")
   { dictType: "${item.DictType}" },
 $set(index = index + 1)
 $end
