@@ -240,7 +240,7 @@ namespace ZR.Service
             });
             var x = Context.Storageable(users)
                 .SplitInsert(it => !it.Any())
-                .SplitIgnore(it => it.Item.UserName == "admin")
+                .SplitIgnore(it => it.Item.UserName == GlobalConstant.AdminRole)
                 .SplitError(x => x.Item.UserName.IsEmpty(), "用户名不能为空")
                 .SplitError(x => !Tools.CheckUserName(x.Item.UserName), "用户名不符合规范")
                 .WhereColumns(it => it.UserName)//如果不是主键可以这样实现（多字段it=>new{it.x1,it.x2}）
