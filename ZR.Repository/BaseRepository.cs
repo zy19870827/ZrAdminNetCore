@@ -1,11 +1,15 @@
-﻿using SqlSugar;
+﻿using Infrastructure.Extensions;
+using Mapster;
+using SqlSugar;
 using SqlSugar.IOC;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
+using Ubiety.Dns.Core;
 using ZR.Model;
+using ZR.Model.Dto;
 
 namespace ZR.Repository
 {
@@ -365,11 +369,33 @@ namespace ZR.Repository
             page.PageSize = parm.PageSize;
             page.PageIndex = parm.PageNum;
 
-            page.Result = source.OrderByIF(!string.IsNullOrEmpty(parm.Sort), $"{parm.Sort} {(parm.SortType.Contains("desc") ? "desc" : "asc")}")
+            page.Result = source.OrderByIF(parm.Sort.IsNotEmpty(), $"{parm.Sort} {(parm.SortType.Contains("desc") ? "desc" : "asc")}")
                 .ToPageList(parm.PageNum, parm.PageSize, ref total);
             page.TotalNum = total;
             return page;
         }
 
+        /// <summary>
+        /// 转指定实体类Dto
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="parm"></param>
+        /// <returns></returns>
+        public static PagedInfo<T2> ToPage<T, T2>(this ISugarQueryable<T> source, PagerInfo parm)
+        {
+            var page = new PagedInfo<T2>();
+            var total = 0;
+            page.PageSize = parm.PageSize;
+            page.PageIndex = parm.PageNum;
+
+            var result = source.OrderByIF(parm.Sort.IsNotEmpty(), $"{parm.Sort} {(parm.SortType.Contains("desc") ? "desc" : "asc")}")
+                .ToPageList(parm.PageNum, parm.PageSize, ref total);
+            page.TotalNum = total;
+
+            page.Result = result.Adapt<List<T2>>();
+            return page;
+        }
     }
 }

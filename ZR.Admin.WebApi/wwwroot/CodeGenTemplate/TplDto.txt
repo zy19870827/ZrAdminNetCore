@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using ${options.ModelsNamespace}.Dto;
 using ${options.ModelsNamespace}.Models;
+$if(replaceDto.ShowBtnExport)
+using OfficeOpenXml.Attributes;
+$end
 
 namespace ${options.DtosNamespace}.Dto
 {
@@ -26,7 +29,7 @@ $end
     }
 
     /// <summary>
-    /// ${genTable.FunctionName}输入对象
+    /// ${genTable.FunctionName}输入输出对象
     /// </summary>
     public class ${replaceDto.ModelTypeName}Dto
     {
@@ -34,7 +37,23 @@ $foreach(item in genTable.Columns)
 $if(item.IsRequired)
         [Required(ErrorMessage = "${item.ColumnComment}不能为空")]
 $end
+$if(replaceDto.ShowBtnExport)
+$if(item.IsExport)
+        [EpplusTableColumn(Header = "$if(item.ColumnComment == "")${item.CsharpField}${else}${item.ColumnComment}${end}"$if(item.CsharpType == "DateTime"), NumberFormat = "yyyy-MM-dd HH:mm:ss"$end)]
+$else
+        [EpplusIgnore]
+$end
+$end
         public $item.CsharpType$item.RequiredStr $item.CsharpField { get; set; }
+
+$end
+
+$if(genTable.TplCategory == "subNav" && genTable.SubTable != null)
+        public ${genTable.SubTable.ClassName} ${genTable.SubTable.ClassName} { get; set; }
+$end
+
+$if(genTable.TplCategory == "subNavMore" && genTable.SubTable != null)
+        public List<${genTable.SubTable.ClassName}> ${genTable.SubTable.ClassName} { get; set; }
 $end
     }
 }

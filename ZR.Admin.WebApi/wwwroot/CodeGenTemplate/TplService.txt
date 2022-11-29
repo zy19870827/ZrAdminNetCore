@@ -7,6 +7,9 @@ using ${options.ModelsNamespace}.Models;
 using ${options.IRepositoriesNamespace};
 using ${options.IServicsNamespace}.${options.SubNamespace}.I${options.SubNamespace}Service;
 using System.Linq;
+$if(genTable.TplCategory == "tree")
+using System.Collections.Generic;
+$end
 
 namespace ${options.ServicesNamespace}.${options.SubNamespace}
 {
@@ -51,11 +54,10 @@ $if(null != genTable.SubTableName && "" != genTable.SubTableName)
                 .Includes(it => it.${genTable.SubTable.ClassName}.MappingField(z => z.${genTable.SubTableFkName}, () => it.${replaceDto.PKName}))
 $end
 $if(genTable.Options.SortField != "" && genTable.Options.SortField != null)
-                .OrderBy("${genTable.Options.SortField} ${genTable.Options.SortType}")
+                //.OrderBy("${genTable.Options.SortField} ${genTable.Options.SortType}")
 $end
                 .Where(predicate.ToExpression())
-                .Select<${replaceDto.ModelTypeName}Dto>()
-                .ToPage(parm);
+                .ToPage<${replaceDto.ModelTypeName}, ${replaceDto.ModelTypeName}Dto>(parm);
 
             return response;
         }
@@ -82,12 +84,14 @@ $end
 $end
 $end
 
-            var response = Queryable().Where(predicate.ToExpression())
+            var response = Queryable()
+                .Where(predicate.ToExpression())
                 .ToTree(it => it.Children, it => it.${genTable.Options.TreeParentCode}, 0);
 
             return response;
         }
 $end
+
         /// <summary>
         /// 添加${genTable.FunctionName}
         /// </summary>
