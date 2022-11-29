@@ -31,12 +31,10 @@ $end
     public class ${replaceDto.ModelTypeName}Dto
     {
 $foreach(item in genTable.Columns)
-$if((item.IsInsert || item.IsEdit || item.IsPk || item.IsIncrement))
 $if(item.IsRequired)
         [Required(ErrorMessage = "${item.ColumnComment}不能为空")]
 $end
         public $item.CsharpType$item.RequiredStr $item.CsharpField { get; set; }
-$end
 $end
     }
 }

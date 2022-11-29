@@ -26,7 +26,7 @@ namespace ${options.ServicesNamespace}.${options.SubNamespace}
         /// </summary>
         /// <param name="parm"></param>
         /// <returns></returns>
-        public PagedInfo<${replaceDto.ModelTypeName}> GetList(${replaceDto.ModelTypeName}QueryDto parm)
+        public PagedInfo<${replaceDto.ModelTypeName}Dto> GetList(${replaceDto.ModelTypeName}QueryDto parm)
         {
             //开始拼装查询条件
             var predicate = Expressionable.Create<${replaceDto.ModelTypeName}>();
@@ -54,6 +54,7 @@ $if(genTable.Options.SortField != "" && genTable.Options.SortField != null)
                 .OrderBy("${genTable.Options.SortField} ${genTable.Options.SortType}")
 $end
                 .Where(predicate.ToExpression())
+                .Select<${replaceDto.ModelTypeName}Dto>()
                 .ToPage(parm);
 
             return response;
