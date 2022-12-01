@@ -49,10 +49,16 @@ $end
 $end
 
 $if(genTable.TplCategory == "subNav" && genTable.SubTable != null)
+$if(replaceDto.ShowBtnExport)
+        [EpplusIgnore]
+$end
         public ${genTable.SubTable.ClassName} ${genTable.SubTable.ClassName} { get; set; }
 $end
 
 $if(genTable.TplCategory == "subNavMore" && genTable.SubTable != null)
+$if(replaceDto.ShowBtnExport)
+        [EpplusIgnore]
+$end
         public List<${genTable.SubTable.ClassName}> ${genTable.SubTable.ClassName} { get; set; }
 $end
     }
