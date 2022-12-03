@@ -144,7 +144,7 @@ $if(replaceDto.ShowBtnExport)
         /// 导出${genTable.FunctionName}
         /// </summary>
         /// <returns></returns>
-        [Log(Title = "${genTable.FunctionName}", BusinessType = BusinessType.EXPORT, IsSaveResponseData = false)]
+        [Log(Title = "${genTable.FunctionName}", BusinessType = BusinessType.EXPORT)]
         [HttpGet("export")]
         [ActionPermissionFilter(Permission = "${replaceDto.PermissionPrefix}:export")]
         public IActionResult Export([FromQuery] ${replaceDto.ModelTypeName}QueryDto parm)
