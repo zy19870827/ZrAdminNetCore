@@ -2,6 +2,10 @@
 $if(replaceDto.SelectMulti == 1)
 import QS from 'qs'
 $end
+$if(replaceDto.ShowBtnExport)
+import { downFile } from '@/utils/request'
+$end
+
 /**
 * ${genTable.functionName}分页查询
 * @param {查询条件} data
@@ -88,12 +92,8 @@ export function clear${genTable.BusinessName}() {
 }
 
 // 导出${genTable.functionName}
-export function export${genTable.BusinessName}(query) {
-  return request({
-    url: '${genTable.ModuleName}/${genTable.BusinessName}/export',
-    method: 'get',
-    params: query
-  })
+export async function export${genTable.BusinessName}(query) {
+  await downFile('${genTable.ModuleName}/${genTable.BusinessName}/export', { ...query })
 }
 
 $if(showCustomInput)
