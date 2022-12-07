@@ -7,9 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
-using Ubiety.Dns.Core;
 using ZR.Model;
-using ZR.Model.Dto;
 
 namespace ZR.Repository
 {
@@ -369,7 +367,7 @@ namespace ZR.Repository
             page.PageSize = parm.PageSize;
             page.PageIndex = parm.PageNum;
 
-            page.Result = source.OrderByIF(parm.Sort.IsNotEmpty(), $"{parm.Sort} {(parm.SortType.Contains("desc") ? "desc" : "asc")}")
+            page.Result = source.OrderByIF(parm.Sort.IsNotEmpty(), $"{parm.Sort.ToSqlFilter()} {(parm.SortType.Contains("desc") ? "desc" : "asc")}")
                 .ToPageList(parm.PageNum, parm.PageSize, ref total);
             page.TotalNum = total;
             return page;
@@ -390,10 +388,11 @@ namespace ZR.Repository
             page.PageSize = parm.PageSize;
             page.PageIndex = parm.PageNum;
 
-            var result = source.OrderByIF(parm.Sort.IsNotEmpty(), $"{parm.Sort} {(parm.SortType.Contains("desc") ? "desc" : "asc")}")
+            var result = source
+                .OrderByIF(parm.Sort.IsNotEmpty(), $"{parm.Sort.ToSqlFilter()} {(parm.SortType.Contains("desc") ? "desc" : "asc")}")
                 .ToPageList(parm.PageNum, parm.PageSize, ref total);
+            
             page.TotalNum = total;
-
             page.Result = result.Adapt<List<T2>>();
             return page;
         }
