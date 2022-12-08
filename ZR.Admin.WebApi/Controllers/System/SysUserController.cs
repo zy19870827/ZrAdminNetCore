@@ -5,7 +5,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MiniExcelLibs;
+using SqlSugar;
 using System.Collections.Generic;
+using System.Linq;
+using System.Web;
 using ZR.Admin.WebApi.Extensions;
 using ZR.Admin.WebApi.Filters;
 using ZR.Common;
@@ -183,7 +187,12 @@ namespace ZR.Admin.WebApi.Controllers.System
         [ActionPermissionFilter(Permission = "system:user:import")]
         public IActionResult ImportData([FromForm(Name = "file")] IFormFile formFile)
         {
-            List<SysUser> users = (List<SysUser>)ExcelHelper<SysUser>.ImportData(formFile.OpenReadStream());
+            //List<SysUser> users = (List<SysUser>)ExcelHelper<SysUser>.ImportData(formFile.OpenReadStream());
+            List<SysUser> users = new();
+            using (var stream = formFile.OpenReadStream())
+            {
+                users = stream.Query<SysUser>().ToList();
+            }
 
             string msg = UserService.ImportUsers(users);
 
@@ -218,9 +227,8 @@ namespace ZR.Admin.WebApi.Controllers.System
         {
             var list = UserService.SelectUserList(user, new PagerInfo(1, 10000));
 
-            //调试模式需要加上
-            string sFileName = ExportExcel(list.Result, "user", "用户列表");
-            return ExportExcel("export", sFileName);
+            var result = ExportExcelMini(list.Result, "user", "用户列表");
+            return ExportExcel(result.Item2, result.Item1);
         }
     }
 }
