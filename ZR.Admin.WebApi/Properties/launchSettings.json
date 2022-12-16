@@ -2,7 +2,6 @@
   "profiles": {
     "ZRAdmin": {
       "commandName": "Project",
-      "launchBrowser": false,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": ""
       },
