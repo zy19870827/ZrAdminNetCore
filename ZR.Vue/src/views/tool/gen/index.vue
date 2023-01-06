@@ -147,7 +147,7 @@ export default {
      */
     handleEditTable(row) {
       this.queryParams.tableName = row.tableName
-      this.handleSearch()
+      // this.handleSearch()
 
       this.$router.push({
         path: '/gen/editTable',
