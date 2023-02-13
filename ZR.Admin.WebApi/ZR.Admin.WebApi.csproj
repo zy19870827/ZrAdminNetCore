@@ -5,6 +5,7 @@
 		<UserSecretsId>bc51af00-60b6-4e2a-935e-267c368c890a</UserSecretsId>
 		<EnableNETAnalyzers>false</EnableNETAnalyzers>
 		<SatelliteResourceLanguages>zh-Hans</SatelliteResourceLanguages>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
