@@ -56,8 +56,11 @@ namespace ZR.Admin.WebApi.Extensions
                 });
                 try
                 {
+                    var tempPath = hostEnvironment.ContentRootPath;
                     //添加文档注释
-                    c.IncludeXmlComments(Path.Combine(hostEnvironment.ContentRootPath, "ZRAdmin.xml"), true);
+                    c.IncludeXmlComments(Path.Combine(tempPath, "ZRAdmin.xml"), true);
+                    c.IncludeXmlComments(Path.Combine(tempPath, "ZRModel.xml"), true);
+                    //c.IncludeXmlComments(Path.Combine(Directory.GetParent(tempPath).FullName, "ZR.Model", "ZRModel.xml"), true);
                 }
                 catch (Exception ex)
                 {
