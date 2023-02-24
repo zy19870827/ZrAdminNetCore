@@ -84,7 +84,7 @@ namespace ZR.Service
         {
             var menuExpression = Expressionable.Create<SysMenu>();
             menuExpression.And(c => c.ParentId == menuId);
-            
+
             if (!SysRoleService.IsAdmin(userId))
             {
                 var userRoles = SysRoleService.SelectUserRoles(userId);
@@ -349,7 +349,8 @@ namespace ZR.Service
         /// <returns></returns>
         public List<RouterVo> BuildMenus(List<SysMenu> menus)
         {
-            List<RouterVo> routers = new List<RouterVo>();
+            List<RouterVo> routers = new();
+            if (menus == null) return routers;
 
             foreach (var menu in menus)
             {
@@ -532,7 +533,6 @@ namespace ZR.Service
             return menu.IsFrame.Equals(UserConstants.NO_FRAME) && Tools.IsUrl(menu.Path);
         }
 
-        ///
         /// <summary>
         /// 是否为parent_view组件
         /// </summary>
