@@ -152,9 +152,11 @@ namespace ZR.Admin.WebApi
         /// <param name="configuration"></param>
         private void InjectServices(IServiceCollection services, IConfiguration configuration)
         {
+            //注册系统接口服务
             services.AddAppService();
+            //注册获取配置文件
             services.AddSingleton(new AppSettings(configuration));
-            //开启计划任务
+            //注册计划任务
             services.AddTaskSchedulers();
             //初始化db
             DbExtension.AddDb(configuration);
